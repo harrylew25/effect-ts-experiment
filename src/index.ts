@@ -1,4 +1,4 @@
-import { Effect, Data } from 'effect';
+import { Data, Effect } from 'effect';
 
 class FetchError extends Data.TaggedError('FetchError')<{}> {}
 
@@ -17,16 +17,14 @@ const jsonResponse = (response: Response) =>
   });
 
 const main = (pokemonName: string) =>
-  fetchRequest(pokemonName).pipe(
-    Effect.filterOrFail(
-      (response) => response.ok,
-      () => new FetchError(),
-    ),
-    Effect.flatMap(jsonResponse),
-    Effect.catchTags({
-      FetchError: () => Effect.succeed('Failed to fetch the data.'),
-      JsonError: () => Effect.succeed('Failed to parse the JSON.'),
-    }),
-  );
+  Effect.gen(function* () {
+    const response = yield* fetchRequest(pokemonName);
+
+    if (!response.ok) {
+      return yield* new FetchError();
+    }
+
+    return yield* jsonResponse(response);
+  });
 
 Effect.runPromise(main('ditto')).then(console.log);
