@@ -1,8 +1,16 @@
-import { Data, Effect } from 'effect';
+import { Data, Effect, Schema } from 'effect';
 
 class FetchError extends Data.TaggedError('FetchError')<{}> {}
-
 class JsonError extends Data.TaggedError('JsonError')<{}> {}
+class Pokemon extends Schema.Class<Pokemon>('Pokemon')({
+  id: Schema.Number,
+  order: Schema.Number,
+  name: Schema.String,
+  height: Schema.Number,
+  weight: Schema.Number,
+}) {}
+
+const decodePokemon = Schema.decode(Pokemon);
 
 const fetchRequest = (pokemon: string) =>
   Effect.tryPromise({
@@ -24,13 +32,15 @@ const program = (pokemonName: string) =>
       return yield* new FetchError();
     }
 
-    return yield* jsonResponse(response);
+    const json = yield* jsonResponse(response);
+    return yield* decodePokemon(json);
   });
 
-const main = program('ditt').pipe(
+const main = program('ditto').pipe(
   Effect.catchTags({
     FetchError: () => Effect.succeed('Fetch error'),
     JsonError: () => Effect.succeed('JSON error'),
+    ParseError: () => Effect.succeed('Parse error'),
   }),
 );
 
