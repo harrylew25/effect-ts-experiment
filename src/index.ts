@@ -16,7 +16,7 @@ const jsonResponse = (response: Response) =>
     catch: () => new JsonError(),
   });
 
-const main = (pokemonName: string) =>
+const program = (pokemonName: string) =>
   Effect.gen(function* () {
     const response = yield* fetchRequest(pokemonName);
 
@@ -27,4 +27,11 @@ const main = (pokemonName: string) =>
     return yield* jsonResponse(response);
   });
 
-Effect.runPromise(main('ditto')).then(console.log);
+const main = program('ditt').pipe(
+  Effect.catchTags({
+    FetchError: () => Effect.succeed('Fetch error'),
+    JsonError: () => Effect.succeed('JSON error'),
+  }),
+);
+
+Effect.runPromise(main).then(console.log);
