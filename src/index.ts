@@ -1,12 +1,14 @@
 import { Effect } from 'effect';
-import { PokeApiLive, PokeApiTag } from './PokeApi';
+import { PokeApiServiceTag } from './PokeApi';
 
 const program = Effect.gen(function* () {
-	const pokeApi = yield* PokeApiTag;
+	const pokeApi = yield* PokeApiServiceTag;
 	return yield* pokeApi.getPokemon;
 });
 
-const runnable = program.pipe(Effect.provideService(PokeApiTag, PokeApiLive));
+const runnable = program.pipe(
+	Effect.provideService(PokeApiServiceTag, PokeApiServiceTag.Live),
+);
 
 const main = runnable.pipe(
 	Effect.catchTags({
