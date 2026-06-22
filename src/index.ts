@@ -1,15 +1,9 @@
 import { Effect, Layer } from 'effect';
-import { BuildPokeApiUrlTag } from './BuildPokeApiUrl';
 import { PokeApiServiceTag } from './PokeApi';
-import { PokeApiUrlTag } from './PokeApiUrl';
-import { PokemonCollectionTag } from './PokemonCollection';
 
-const MainLayer = Layer.mergeAll(
-	PokeApiServiceTag.Live,
-	PokemonCollectionTag.Live,
-	BuildPokeApiUrlTag.Live.pipe(Layer.provide(PokeApiUrlTag.Live)),
-	PokeApiUrlTag.Live,
-);
+// if development, use mock layer, otherwise use live layer
+
+const MainLayer = Layer.mergeAll(PokeApiServiceTag.Mock);
 
 const program = Effect.gen(function* () {
 	const pokeApi = yield* PokeApiServiceTag;
