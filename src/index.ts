@@ -3,7 +3,7 @@ import { PokeApiServiceTag } from './PokeApi';
 
 // if development, use mock layer, otherwise use live layer
 
-const MainLayer = Layer.mergeAll(PokeApiServiceTag.Mock);
+const MainLayer = Layer.mergeAll(PokeApiServiceTag.Default);
 
 const program = Effect.gen(function* () {
 	const pokeApi = yield* PokeApiServiceTag;
